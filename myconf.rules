@@ -1,0 +1,26 @@
+# These are my rules
+#
+######################### Searching for illegal content  
+alert tcp any any -> any any (msg:"someone searching for a terrorism!"; content:"terrorism"; nocase; sid:10001;)
+#
+######################### HTTP connection
+alert tcp any any -> $HOME_NET 8080:8081 (msg:"http connection"; sid:10009;)
+######################### Detecting attacks based on PING comand 
+alert icmp any any -> $HOME_NET any (msg:"We are being pinged!"; sid:10002; rev:001;)
+# alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:"We are being pinged!"; icode:0; itype:8; sid:10002; rev:001;)
+#
+######################### Rules for detecting scanning programs (like nmap)
+alert tcp any any -> $HOME_NET any (msg:"FIN Scan"; flags: F; sid: 10003;)
+alert tcp any any -> $HOME_NET any (msg:"NULL Scan"; flags: 0; sid:10004;)
+alert tcp any any -> $HOME_NET any (msg:"SYN attack"; flags:S,12; sid:10005;)
+alert tcp any any -> $HOME_NET any (msg:"XMUS attack"; flags:FPU; sid:10006;)
+#
+######################### Detecting SQL injection
+alert tcp any any -> $HOME_NET 3306 (msg:"SQL Injection Attempt - or 1=1"; content:"GET"; http_method; uricontent: "or 1=1"; nocase; sid:10007; rev:1;)
+#
+######################### Detecting SQL connection
+alert tcp any any -> $HOME_NET 3306 (msg:"Someone trying to acces SQL DB"; flags:S;  sid:10008;)
+#
+######################## SSH connection
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"ssh Login Attempt"; sid:10010;)
+#alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"BAD-TRAFFIC SSH brute force login attempt"; flow:to_server,established; content:"SSH-"; depth:4; detection_filter:track by_src, count 5, seconds 60; sid:10009; rev:2;)
